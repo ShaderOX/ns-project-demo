@@ -1,29 +1,71 @@
-import "./App.css";
 import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import GunContext from "./contextes/gun";
+import "./App.css";
 import Navbar from "./components/Navbar";
+import GunContext from "./contexts/gun";
 
 function App() {
-  const gun = useContext(GunContext);
   const navigate = useNavigate();
 
+  const gun = useContext(GunContext);
+
   const [username, setUsername] = useState("");
+  const [stake, setStake] = useState<number>();
 
   if (!gun) {
     throw new Error("Gun not found");
   }
 
-  const handleButtonClick = () => {
+  const handleButtonClick = async () => {
     if (!username) {
       alert("Please enter a username");
       return;
     }
 
+    // if (!secretKey) {
+    //   alert("Please enter a secret key");
+    //   return;
+    // }
+
+    // localStorage.setItem(`${username}-sk`, secretKey);
+
+    let keyPair = await window.crypto.subtle.generateKey(
+      {
+        name: "ECDSA",
+        namedCurve: "P-384",
+      },
+      true,
+      ["sign", "verify"]
+    );
+
+    // Exporting keys
+    const exportedPrivateKey = await window.crypto.subtle.exportKey(
+      "jwk",
+      keyPair.privateKey
+    );
+    const exportedPublicKey = await window.crypto.subtle.exportKey(
+      "jwk",
+      keyPair.publicKey
+    );
+
+    // Storing the private key in the localstorage
+    localStorage.setItem(
+      `${username}-privateKey`,
+      JSON.stringify(exportedPrivateKey)
+    );
+
+    // Storing the public key in db
+    console.log({ username, publicKey: JSON.stringify(exportedPublicKey) });
+    gun
+      .get("publicKeys")
+      .set({ username, publicKey: JSON.stringify(exportedPublicKey) });
+
     // Creating the user
-    gun.get("users").set({ username, createdAt: Date.now() });
-    console.log("User created successfully and now redirecting");
-    navigate(`/${username}`);
+    gun.get("users").set({ username, stake, createdAt: Date.now() });
+    console.log(
+      "User created successfully and now redirecting, and public key saved"
+    );
+    navigate(`/${username}/0`);
   };
 
   return (
@@ -43,10 +85,20 @@ function App() {
           <input
             type="text"
             value={username}
-            onChange={e => setUsername(e.target.value)}
+            onChange={e => setUsername(e.target.value.toLowerCase())}
             placeholder="Username"
             className="w-1/2 p-2 text-black"
             required
+          />
+          <input
+            type="number"
+            value={stake}
+            onChange={e => setStake(parseInt(e.target.value))}
+            placeholder="Stake"
+            className="w-1/2 p-2 text-black"
+            required
+            min={0}
+            max={100}
           />
           <button
             onClick={handleButtonClick}

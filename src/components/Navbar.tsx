@@ -13,6 +13,7 @@ function Navbar({ username }: Props) {
         {username && <div className="text-xl">{username}</div>}
         <Link to="/">Home</Link>
         <Link to="/users">Users</Link>
+        <Link to="/blockchain">Blockchain</Link>
       </div>
     </div>
   );

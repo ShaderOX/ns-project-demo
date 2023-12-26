@@ -6,9 +6,10 @@ import reportWebVitals from "./reportWebVitals";
 
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import ChatPage from "./pages/ChatPage";
-import GunContext from "./contextes/gun";
+import GunContext from "./contexts/gun";
 import UsersPage from "./pages/UsersPage";
 import Gun from "gun";
+import BlockchainPage from "./pages/BlockchainPage";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
@@ -20,12 +21,16 @@ const router = createBrowserRouter([
     element: <App />,
   },
   {
-    path: "/:username",
+    path: "/:username/:malicious",
     element: <ChatPage />,
   },
   {
     path: "/users",
     element: <UsersPage />,
+  },
+  {
+    path: "/blockchain",
+    element: <BlockchainPage />,
   },
 ]);
 

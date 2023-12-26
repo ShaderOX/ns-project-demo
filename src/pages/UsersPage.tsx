@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import GunContext from "../contextes/gun";
+import GunContext from "../contexts/gun";
 import Navbar from "../components/Navbar";
 
 function UsersPage() {
